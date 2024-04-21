@@ -1,0 +1,16 @@
+{
+  "name": "be-exc-blog-fso",
+  "version": "0.0.1",
+  "description": "Backend for blog web service in NodeJS",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Rickyslash",
+  "license": "MIT",
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}
