@@ -1,10 +1,10 @@
-const Blog = require('../models/blog')
 const r = require('express').Router()
+const Blog = require('../models/blog')
 
 r.get('/', (_, res) => {
   Blog
     .find({})
-    .then(blogs => { res.json(blogs) })
+    .then((blogs) => { res.json(blogs) })
 })
 
 r.post('/', (req, res) => {
@@ -12,7 +12,7 @@ r.post('/', (req, res) => {
 
   blog
     .save()
-    .then(result => { res.status(201).json(result) })
+    .then((result) => { res.status(201).json(result) })
 })
 
 module.exports = r
