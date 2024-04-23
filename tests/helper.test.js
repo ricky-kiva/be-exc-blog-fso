@@ -1,5 +1,6 @@
 const { test, describe } = require('node:test')
 const assert = require('node:assert')
+const _ = require('lodash')
 const listHelper = require('../utils/list_helper')
 
 const blogs = [
@@ -107,6 +108,31 @@ describe('favorite blog', () => {
       title: myBlog.title,
       author: myBlog.author,
       likes: myBlog.likes,
+    })
+  })
+})
+
+describe('author with most blogs', () => {
+  test('of empty list is null', () => {
+    assert.deepStrictEqual(listHelper.mostBlogs([]), null)
+  })
+
+  test('when list has only one author with most blogs', () => {
+    const topAuthor = blogs[3].author
+
+    assert.deepStrictEqual(listHelper.mostBlogs(blogs), {
+      author: topAuthor,
+      blogs: _.filter(blogs, { author: topAuthor }).length,
+    })
+  })
+
+  test('when list has multiple author with most blogs', () => {
+    const multiTopAuthorBlogs = [blogs[0], blogs[1], blogs[0], blogs[1], blogs[3]]
+    const topAuthor = multiTopAuthorBlogs[0].author
+
+    assert.deepStrictEqual(listHelper.mostBlogs(multiTopAuthorBlogs), {
+      author: topAuthor,
+      blogs: _.filter(multiTopAuthorBlogs, { author: topAuthor }).length,
     })
   })
 })

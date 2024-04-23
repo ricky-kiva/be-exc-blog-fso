@@ -25,5 +25,12 @@ module.exports = {
     semi: 0,
     'no-console': 0,
     'no-plusplus': 0,
+    'import/no-extraneous-dependencies': [
+      0, {
+        devDependencies: false,
+        optionalDependencies: false,
+        peerDependencies: false,
+      },
+    ],
   },
 };
