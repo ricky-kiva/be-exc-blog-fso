@@ -58,12 +58,7 @@ describe('/api/blogs', () => {
   })
 
   test('a valid blog can be added', async () => {
-    const newBlog = {
-      title: 'Unraveling the Mysteries of Dinosaurs: A Journey Through Prehistory',
-      author: 'David Johnson',
-      url: 'https://www.example.com/dinosaur-mysteries',
-      likes: 342,
-    }
+    const newBlog = h.singleBlog
 
     await api
       .post('/api/blogs')
@@ -75,6 +70,22 @@ describe('/api/blogs', () => {
 
     const titles = blogsAfter.map((b) => b.title)
     assert(titles.includes(newBlog.title))
+  })
+
+  test('missing like property in blog will default to 0', async () => {
+    const newBlog = h.singleBlog
+    delete newBlog.likes
+
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(201)
+
+    const blogsAfter = await h.blogsInDb()
+    assert.strictEqual(blogsAfter.length, (h.initialBlog.length + 1))
+
+    const addedBlog = blogsAfter[blogsAfter.findIndex((b) => b.title === newBlog.title)]
+    assert.strictEqual(addedBlog.likes, 0)
   })
 })
 

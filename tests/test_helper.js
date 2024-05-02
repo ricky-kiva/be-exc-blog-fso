@@ -15,6 +15,13 @@ const initialBlog = [
   },
 ]
 
+const singleBlog = {
+  title: 'Unraveling the Mysteries of Dinosaurs: A Journey Through Prehistory',
+  author: 'David Johnson',
+  url: 'https://www.example.com/dinosaur-mysteries',
+  likes: 342,
+}
+
 const blogsInDb = async () => {
   const blogs = await Blog.find({})
 
@@ -23,5 +30,6 @@ const blogsInDb = async () => {
 
 module.exports = {
   initialBlog,
+  singleBlog,
   blogsInDb,
 }
