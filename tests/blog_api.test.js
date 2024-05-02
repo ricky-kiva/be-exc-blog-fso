@@ -56,6 +56,26 @@ describe('/api/blogs', () => {
       })
     }
   })
+
+  test('a valid blog can be added', async () => {
+    const newBlog = {
+      title: 'Unraveling the Mysteries of Dinosaurs: A Journey Through Prehistory',
+      author: 'David Johnson',
+      url: 'https://www.example.com/dinosaur-mysteries',
+      likes: 342,
+    }
+
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(201)
+
+    const blogsAfter = await h.blogsInDb()
+    assert.strictEqual(blogsAfter.length, (h.initialBlog.length + 1))
+
+    const titles = blogsAfter.map((b) => b.title)
+    assert(titles.includes(newBlog.title))
+  })
 })
 
 after(async () => { await mongoose.connection.close() })
