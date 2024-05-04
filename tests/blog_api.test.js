@@ -106,6 +106,24 @@ describe('when there is initial Blogs', () => {
       await Promise.all(blogPromises)
     })
   })
+
+  describe('deletion of a Blog', () => {
+    test('succeeds (status: 204) if id is valid', async () => {
+      const initialBlogs = await h.blogsInDb()
+      const blogToDelete = initialBlogs[0]
+
+      await api
+        .delete(`/api/blogs/${blogToDelete.id}`)
+        .expect(204)
+
+      const blogsAfter = await h.blogsInDb()
+
+      const titles = blogsAfter.map((b) => b.title)
+      assert(!titles.includes(blogToDelete.title))
+
+      assert.strictEqual(blogsAfter.length, initialBlogs.length - 1)
+    })
+  })
 })
 
 after(async () => { await mongoose.connection.close() })

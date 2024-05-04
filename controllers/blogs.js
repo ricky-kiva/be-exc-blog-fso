@@ -27,4 +27,9 @@ r.post('/', (req, res) => {
     .then((result) => { res.status(201).json(result) })
 })
 
+r.delete('/:id', async (req, res) => {
+  await Blog.findByIdAndDelete(req.params.id)
+  res.status(204).end()
+})
+
 module.exports = r
