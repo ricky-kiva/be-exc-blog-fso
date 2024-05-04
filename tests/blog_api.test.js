@@ -87,6 +87,31 @@ describe('/api/blogs', () => {
     const addedBlog = blogsAfter[blogsAfter.findIndex((b) => b.title === newBlog.title)]
     assert.strictEqual(addedBlog.likes, 0)
   })
+
+  test('missing title or url of blog will reponds 400 Bad Request', async () => {
+    const assertMissingProperty = async (b) => {
+      await api
+        .post('/api/blogs')
+        .send(b)
+        .expect(400)
+
+      const blogsAfter = await h.blogsInDb()
+      assert.strictEqual(blogsAfter.length, h.initialBlog.length)
+    }
+
+    const blogWithoutTitle = h.singleBlog
+    delete blogWithoutTitle.title
+
+    const blogWithoutUrl = h.singleBlog
+    delete blogWithoutUrl.url
+
+    const blogToTest = [blogWithoutTitle, blogWithoutUrl]
+
+    const blogPromises = blogToTest
+      .map((b) => assertMissingProperty(b))
+
+    await Promise.all(blogPromises)
+  })
 })
 
 after(async () => { await mongoose.connection.close() })
