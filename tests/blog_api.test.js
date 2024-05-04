@@ -124,6 +124,30 @@ describe('when there is initial Blogs', () => {
       assert.strictEqual(blogsAfter.length, initialBlogs.length - 1)
     })
   })
+
+  describe('updating a blog', () => {
+    test('succeeds (status: 201) if id is valid', async () => {
+      const initialBlogs = await h.blogsInDb()
+      const blogToUpdate = initialBlogs[0]
+
+      const payload = {
+        likes: blogToUpdate.likes,
+        author: blogToUpdate.author,
+      }
+
+      await api
+        .put(`/api/blogs/${blogToUpdate.id}`)
+        .send(payload)
+        .expect(201)
+
+      const blogsAfter = await h.blogsInDb()
+
+      const updatedBlog = blogsAfter[blogsAfter.findIndex((b) => b.title === blogToUpdate.title)]
+
+      assert.strictEqual(updatedBlog.author, blogToUpdate.author)
+      assert.strictEqual(updatedBlog.likes, blogToUpdate.likes)
+    })
+  })
 })
 
 after(async () => { await mongoose.connection.close() })

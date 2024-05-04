@@ -32,4 +32,19 @@ r.delete('/:id', async (req, res) => {
   res.status(204).end()
 })
 
+r.put('/:id', async (req, res) => {
+  const { body } = req
+  const { id } = req.params
+
+  const blog = {
+    title: body.title,
+    author: body.author,
+    url: body.url,
+    likes: body.likes,
+  }
+
+  const updatedBlog = await Blog.findByIdAndUpdate(id, blog, { new: true })
+  res.status(201).json(updatedBlog)
+})
+
 module.exports = r
