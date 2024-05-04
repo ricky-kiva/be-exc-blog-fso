@@ -12,21 +12,13 @@ const Blog = require('../models/blog')
 
 const api = supertest(app)
 
-beforeEach(async () => {
-  await Blog.deleteMany({})
-  console.log('Blogs cleared')
+describe('when there is initial Blogs', () => {
+  beforeEach(async () => {
+    await Blog.deleteMany({})
+    await Blog.insertMany(h.initialBlog)
+  })
 
-  const blogPromises = h.initialBlog
-    .map((b) => new Blog(b))
-    .map((b) => b.save())
-
-  await Promise.all(blogPromises)
-
-  console.log('beforeEach done')
-})
-
-describe('/api/blogs', () => {
-  test('received blog amount is correct', async () => {
+  test('all Blogs are returned', async () => {
     const response = await api
       .get('/api/blogs')
       .expect(200)
@@ -35,7 +27,7 @@ describe('/api/blogs', () => {
     assert.strictEqual(response.body.length, h.initialBlog.length)
   })
 
-  test('blog identifier is "id" instead of "_id"', async () => {
+  test('Blog identifier is "id" not "_id"', async () => {
     const response = await api
       .get('/api/blogs')
       .expect(200)
@@ -57,60 +49,62 @@ describe('/api/blogs', () => {
     }
   })
 
-  test('a valid blog can be added', async () => {
-    const newBlog = h.singleBlog
+  describe('addition of a new Blog', () => {
+    test('succeeds with valid data', async () => {
+      const newBlog = h.singleBlog
 
-    await api
-      .post('/api/blogs')
-      .send(newBlog)
-      .expect(201)
-
-    const blogsAfter = await h.blogsInDb()
-    assert.strictEqual(blogsAfter.length, (h.initialBlog.length + 1))
-
-    const titles = blogsAfter.map((b) => b.title)
-    assert(titles.includes(newBlog.title))
-  })
-
-  test('missing like property in blog will default to 0', async () => {
-    const newBlog = h.singleBlog
-    delete newBlog.likes
-
-    await api
-      .post('/api/blogs')
-      .send(newBlog)
-      .expect(201)
-
-    const blogsAfter = await h.blogsInDb()
-    assert.strictEqual(blogsAfter.length, (h.initialBlog.length + 1))
-
-    const addedBlog = blogsAfter[blogsAfter.findIndex((b) => b.title === newBlog.title)]
-    assert.strictEqual(addedBlog.likes, 0)
-  })
-
-  test('missing title or url of blog will reponds 400 Bad Request', async () => {
-    const assertMissingProperty = async (b) => {
       await api
         .post('/api/blogs')
-        .send(b)
-        .expect(400)
+        .send(newBlog)
+        .expect(201)
 
       const blogsAfter = await h.blogsInDb()
-      assert.strictEqual(blogsAfter.length, h.initialBlog.length)
-    }
+      assert.strictEqual(blogsAfter.length, (h.initialBlog.length + 1))
 
-    const blogWithoutTitle = h.singleBlog
-    delete blogWithoutTitle.title
+      const titles = blogsAfter.map((b) => b.title)
+      assert(titles.includes(newBlog.title))
+    })
 
-    const blogWithoutUrl = h.singleBlog
-    delete blogWithoutUrl.url
+    test('missing Like property will default to 0', async () => {
+      const newBlog = h.singleBlog
+      delete newBlog.likes
 
-    const blogToTest = [blogWithoutTitle, blogWithoutUrl]
+      await api
+        .post('/api/blogs')
+        .send(newBlog)
+        .expect(201)
 
-    const blogPromises = blogToTest
-      .map((b) => assertMissingProperty(b))
+      const blogsAfter = await h.blogsInDb()
+      assert.strictEqual(blogsAfter.length, (h.initialBlog.length + 1))
 
-    await Promise.all(blogPromises)
+      const addedBlog = blogsAfter[blogsAfter.findIndex((b) => b.title === newBlog.title)]
+      assert.strictEqual(addedBlog.likes, 0)
+    })
+
+    test('fails (status: 400) if Title or URL is missing', async () => {
+      const assertMissingProperty = async (b) => {
+        await api
+          .post('/api/blogs')
+          .send(b)
+          .expect(400)
+
+        const blogsAfter = await h.blogsInDb()
+        assert.strictEqual(blogsAfter.length, h.initialBlog.length)
+      }
+
+      const blogWithoutTitle = h.singleBlog
+      delete blogWithoutTitle.title
+
+      const blogWithoutUrl = h.singleBlog
+      delete blogWithoutUrl.url
+
+      const blogToTest = [blogWithoutTitle, blogWithoutUrl]
+
+      const blogPromises = blogToTest
+        .map((b) => assertMissingProperty(b))
+
+      await Promise.all(blogPromises)
+    })
   })
 })
 
