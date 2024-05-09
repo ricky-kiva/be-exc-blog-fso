@@ -32,5 +32,6 @@ module.exports = {
         peerDependencies: false,
       },
     ],
+    'consistent-return': 0,
   },
 };

@@ -1,6 +1,5 @@
 const logger = require('./logger')
 
-// eslint-disable-next-line consistent-return
 const errorHandler = (err, _, res, next) => {
   logger.error(err.message)
 
