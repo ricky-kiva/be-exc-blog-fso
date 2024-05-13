@@ -1,5 +1,6 @@
 const r = require('express').Router()
 const Blog = require('../models/blog')
+const User = require('../models/user')
 
 const h = require('../tests/test_helper')
 
@@ -31,6 +32,11 @@ r.post('/', async (req, res) => {
   })
 
   const savedBlog = await blog.save()
+
+  const user = await User.findById(randomUser.id)
+
+  user.blogs = user.blogs.concat(savedBlog.id)
+  await user.save()
 
   res.status(201).json(savedBlog)
 })
