@@ -16,13 +16,6 @@ const initialBlog = [
   },
 ]
 
-const singleBlog = {
-  title: 'Unraveling the Mysteries of Dinosaurs: A Journey Through Prehistory',
-  author: 'David Johnson',
-  url: 'https://www.example.com/dinosaur-mysteries',
-  likes: 342,
-}
-
 const initialUser = [
   {
     username: 'root',
@@ -34,6 +27,19 @@ const initialUser = [
     password: 'eren123',
   },
 ]
+
+const singleBlog = {
+  title: 'Unraveling the Mysteries of Dinosaurs: A Journey Through Prehistory',
+  author: 'David Johnson',
+  url: 'https://www.example.com/dinosaur-mysteries',
+  likes: 342,
+}
+
+const singleUser = {
+  name: 'Zeke Yeager',
+  username: 'zeke.aot',
+  password: 'zeke123',
+}
 
 const blogsInDb = async () => {
   const blogs = await Blog.find({})
@@ -51,4 +57,5 @@ module.exports = {
   blogsInDb,
   initialUser,
   usersInDb,
+  singleUser,
 }

@@ -1,6 +1,7 @@
 const assert = require('node:assert')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
+const bcrypt = require('bcrypt')
 
 const {
   test, describe, beforeEach, after,
@@ -13,15 +14,25 @@ const User = require('../models/user')
 
 const api = supertest(app)
 
-describe('when there is initial Users', () => {
+const USERS_ENDPOINT = '/api/users'
+
+describe.only('when there is initial Users', () => {
   beforeEach(async () => {
     await User.deleteMany({})
-    await User.insertMany(h.initialUser)
+
+    const hashPasswordPromises = h.initialUser.map(async (u) => {
+      const saltRounds = 10
+      return { ...u, password: await bcrypt.hash(u.password, saltRounds) }
+    })
+
+    const hashedInitialUsers = await Promise.all(hashPasswordPromises)
+
+    await User.insertMany(hashedInitialUsers)
   })
 
   test('all Users are returned', async () => {
     const response = await api
-      .get('/api/users')
+      .get(USERS_ENDPOINT)
       .expect(200)
       .expect('Content-Type', /application\/json/)
 
@@ -30,7 +41,7 @@ describe('when there is initial Users', () => {
 
   test('User identifier is `id` not `_id`', async () => {
     const response = await api
-      .get('/api/users')
+      .get(USERS_ENDPOINT)
       .expect(200)
       .expect('Content-Type', /application\/json/)
 
@@ -52,7 +63,7 @@ describe('when there is initial Users', () => {
 
   test('password is not listed as property when requesting Users', async () => {
     const response = await api
-      .get('/api/users')
+      .get(USERS_ENDPOINT)
       .expect(200)
       .expect('Content-Type', /application\/json/)
 
@@ -79,6 +90,54 @@ describe('when there is initial Users', () => {
     const user = usersInDb[usersInDb.findIndex((u) => u.username === targetUser.username)]
 
     assert.notStrictEqual(user.password, targetUser.password)
+  })
+
+  describe.only('addition of new User', () => {
+    test('succeeds with valid data', async () => {
+      const user = h.singleUser
+
+      const savedUser = await api
+        .post(USERS_ENDPOINT)
+        .send(user)
+        .expect(201)
+        .expect('Content-Type', /application\/json/)
+
+      console.log(savedUser.body)
+
+      const usersAfter = await h.usersInDb()
+      assert.strictEqual(usersAfter.length, h.initialUser.length + 1)
+
+      const usernames = usersAfter.map((u) => u.username)
+      assert.ok(usernames.includes(savedUser.body.username))
+    })
+
+    test('hash the User password', async () => {
+      const user = h.singleUser
+
+      await api
+        .post(USERS_ENDPOINT)
+        .send(user)
+        .expect(201)
+        .expect('Content-Type', /application\/json/)
+
+      const usersAfter = await h.usersInDb()
+      const userInDb = usersAfter[usersAfter.findIndex((u) => u.username === user.username)]
+
+      assert.ok(userInDb.password !== user.password)
+    })
+
+    test.only('fails (status: 400) if data is invalid', async () => {
+      const user = { name: 'Falco Grice', password: 'falco123' }
+
+      await api
+        .post(USERS_ENDPOINT)
+        .send(user)
+        .expect(400)
+
+      const usersAfter = await h.usersInDb()
+
+      assert.strictEqual(usersAfter.length, h.initialUser.length)
+    })
   })
 })
 
