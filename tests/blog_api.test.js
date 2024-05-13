@@ -12,6 +12,8 @@ const Blog = require('../models/blog')
 
 const api = supertest(app)
 
+const BLOGS_ENDPOINT = '/api/blogs'
+
 describe('when there is initial Blogs', () => {
   beforeEach(async () => {
     await Blog.deleteMany({})
@@ -20,7 +22,7 @@ describe('when there is initial Blogs', () => {
 
   test('all Blogs are returned', async () => {
     const response = await api
-      .get('/api/blogs')
+      .get(BLOGS_ENDPOINT)
       .expect(200)
       .expect('Content-Type', /application\/json/)
 
@@ -29,7 +31,7 @@ describe('when there is initial Blogs', () => {
 
   test('Blog identifier is "id" not "_id"', async () => {
     const response = await api
-      .get('/api/blogs')
+      .get(BLOGS_ENDPOINT)
       .expect(200)
       .expect('Content-Type', /application\/json/)
 
@@ -54,7 +56,7 @@ describe('when there is initial Blogs', () => {
       const newBlog = h.singleBlog
 
       await api
-        .post('/api/blogs')
+        .post(BLOGS_ENDPOINT)
         .send(newBlog)
         .expect(201)
 
@@ -70,7 +72,7 @@ describe('when there is initial Blogs', () => {
       delete newBlog.likes
 
       await api
-        .post('/api/blogs')
+        .post(BLOGS_ENDPOINT)
         .send(newBlog)
         .expect(201)
 
@@ -84,7 +86,7 @@ describe('when there is initial Blogs', () => {
     test('fails (status: 400) if Title or URL is missing', async () => {
       const assertMissingProperty = async (b) => {
         await api
-          .post('/api/blogs')
+          .post(BLOGS_ENDPOINT)
           .send(b)
           .expect(400)
 
