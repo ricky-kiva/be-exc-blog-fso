@@ -141,4 +141,4 @@ describe.only('when there is initial Users', () => {
   })
 })
 
-after(async () => { mongoose.connection.close() })
+after(async () => { await mongoose.connection.close() })
