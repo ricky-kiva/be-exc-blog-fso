@@ -34,4 +34,9 @@ r.post('/', async (req, res) => {
   res.status(201).json(savedUser)
 })
 
+r.delete('/:id', async (req, res) => {
+  await User.findByIdAndDelete(req.params.id)
+  res.status(204).end()
+})
+
 module.exports = r
