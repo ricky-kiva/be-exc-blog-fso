@@ -8,18 +8,16 @@ const nodeEnv = isProd ? 'prod' : 'dev'
 
 const newmanCommand = `newman run \
   postman/resources/${nodeEnv}.postman_collection.json \
-  --environment postman/resources/${nodeEnv}.postman_environment.json`
+  --environment postman/resources/${nodeEnv}.postman_environment.json --color on`
 
 const execCommand = isExport
   ? `npm run pm:export -- --${nodeEnv} && ${newmanCommand}`
   : newmanCommand
 
-exec(execCommand, (err, stdout, stderr) => {
-  if (err) {
-    console.error(`exec error: ${err}`)
-    return
-  }
+const execProcess = exec(execCommand)
 
-  if (stdout) { console.log(`stdout: ${stdout}`) }
-  if (stderr) { console.error(`stderr: ${stderr}`) }
+execProcess.stdout.on('data', (data) => { console.log(data) })
+execProcess.stderr.on('data', (data) => { console.error(data) })
+execProcess.on('close', (code) => {
+  console.log(`Child process exited with code ${code}`)
 })

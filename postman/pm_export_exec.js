@@ -22,12 +22,10 @@ const exportCommand = `cross-env \
   PREFIX=${filePrefix} \
   sh postman/pm_export.sh`
 
-exec(exportCommand, (err, stdout, stderr) => {
-  if (err) {
-    console.error(`exec error: ${err}`)
-    return
-  }
+const execProcess = exec(exportCommand)
 
-  if (stdout) { console.log(`stdout: ${stdout}`) }
-  if (stderr) { console.error(`stderr: ${stderr}`) }
+execProcess.stdout.on('data', (data) => { console.log(data) })
+execProcess.stderr.on('data', (data) => { console.error(data) });
+execProcess.on('close', (code) => {
+  console.log(`Child process exited with code ${code}`)
 })
